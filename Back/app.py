@@ -18,16 +18,16 @@ db = SQLAlchemy(app)
 class Books(db.Model):
     id = db.Column("book_id", db.Integer, primary_key = True)
     book_Name = db.Column(db.String(100))
-    auther = db.Column(db.String(50))
+    author = db.Column(db.String(50))
     year_Published = db.Column(db.Integer)
     book_Type = db.Column(db.Integer)
     books = db.relationship('Loans', backref='books')
     
 
  
-    def __init__(self, book_Name,auther, year_Published, book_Type ):
+    def __init__(self, book_Name,author, year_Published, book_Type ):
         self.book_Name = book_Name
-        self.auther =auther
+        self.author =author
         self.year_Published = year_Published
         self.book_Type = book_Type
 
@@ -72,15 +72,15 @@ def crude_books(id=-1):
     if request.method == 'GET':
             res=[]
             for book in Books.query.all():
-                res.append({"name":book.book_Name,"author":book.auther,"id":book.id,"yearPublished":book.year_Published,"loanType":book.book_Type})
+                res.append({"name":book.book_Name,"author":book.author,"id":book.id,"yearPublished":book.year_Published,"loanType":book.book_Type})
             return  (json.dumps(res))
     if request.method == 'POST':
         request_data = request.get_json()
         book_Name = request_data['name']
-        auther = request_data['author']
+        author = request_data['author']
         year_Published= request_data["yearPublished"]
-        book_Type= request_data["bType"]
-        new_Book= Books(book_Name,auther,year_Published,book_Type)
+        book_Type= request_data["book_Type"]
+        new_Book= Books(book_Name,author,year_Published,book_Type)
         db.session.add (new_Book)
         db.session.commit()
         return "a new book was added"
@@ -93,7 +93,7 @@ def crude_books(id=-1):
         me=Books.query.get(id)
         request_data = request.get_json()
         me.book_Name = request_data['book_Name']
-        me.auther = request_data['auther']
+        me.author = request_data['author']
         me.year_Published= request_data["year_Published"]
         me.book_Type= request_data["book_Type"]
         db.session.commit()
