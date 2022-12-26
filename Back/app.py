@@ -72,7 +72,7 @@ def crude_books(id=-1):
     if request.method == 'GET':
             res=[]
             for book in Books.query.all():
-                res.append({"name":book.book_Name,"author":book.author,"id":book.id,"yearPublished":book.year_Published,"loanType":book.book_Type})
+                res.append({"book_Name":book.book_Name,"author":book.author,"id":book.id,"yearPublished":book.year_Published,"book_Type":book.book_Type})
             return  (json.dumps(res))
     if request.method == 'POST':
         request_data = request.get_json()
