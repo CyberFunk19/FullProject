@@ -56,10 +56,10 @@ class Loans(db.Model):
     id = db.Column('loan_id', db.Integer, primary_key = True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.customer_id'))
     book_id = db.Column(db.Integer, db.ForeignKey('books.book_id'))
-    loan_Date = db.Column(db.Date)
-    return_Date = db.Column(db.Date)
+    loan_Date = db.Column(db.String)
+    return_Date = db.Column(db.String)
  
-    def __init__(self,customer_id , book_id , loan_Date, return_Date):
+    def __init__(self,customer_id , book_id , loan_Date, return_Date = None):
         self.customer_id = customer_id
         self.book_id = book_id
         self.loan_Date = loan_Date
@@ -72,14 +72,14 @@ def crude_books(id=-1):
     if request.method == 'GET':
             res=[]
             for book in Books.query.all():
-                res.append({"book_Name":book.book_Name,"auther":book.auther,"id":book.id,"year_Published":book.year_Published,"book_Type":book.book_Type})
+                res.append({"name":book.book_Name,"author":book.auther,"id":book.id,"yearPublished":book.year_Published,"loanType":book.book_Type})
             return  (json.dumps(res))
     if request.method == 'POST':
         request_data = request.get_json()
-        book_Name = request_data['book_Name']
-        auther = request_data['auther']
-        year_Published= request_data["year_Published"]
-        book_Type= request_data["book_Type"]
+        book_Name = request_data['name']
+        auther = request_data['author']
+        year_Published= request_data["yearPublished"]
+        book_Type= request_data["bType"]
         new_Book= Books(book_Name,auther,year_Published,book_Type)
         db.session.add (new_Book)
         db.session.commit()
@@ -145,10 +145,7 @@ def crude_loans(id=-1):
         customer_id = request_data['customer_id']
         book_id = request_data['book_id']
         loan_Date= request_data["loan_Date"]
-        loan_date_Obj = datetime.strptime(loan_Date,'%d/%m/%Y')
-        return_Date= request_data["return_Date"]
-        return_date_Obj = datetime.strptime(return_Date,'%d/%m/%Y')
-        new_Loan= Loans(customer_id,book_id,loan_date_Obj,return_date_Obj)
+        new_Loan= Loans(customer_id,book_id,loan_Date)
         db.session.add (new_Loan)
         db.session.commit()
         return "a new loan was added"
