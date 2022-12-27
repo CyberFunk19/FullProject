@@ -1,8 +1,8 @@
-const MY_SERVER = "https://libraryproject.onrender.com/"
+const MY_SERVER = "http://127.0.0.1:5000/library/"
 // DISPLAYS:
 // Display BOOKS
 const getAllBooks = async () => {
-  let bookType = ""
+  let book_Type = ""
   let msg = `<table id="bookTable" class="searchTable" style="text-align: center;">
     <tr>
       <th>Actions</th>
@@ -14,18 +14,19 @@ const getAllBooks = async () => {
   let res = ""
   await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
   res.map((book) => {
-    if (book["loanType"] == 1) bookType = "up to 10 days"
-    else if (book["loanType"] == 2) bookType = "up to 5 days"
-    else if (book["loanType"] == 3) bookType = "up to 2 days"
-    else bookType = "ERORR"
+    if (book["book_Type"] == 1) book_Type = "up to 10 days"
+    else if (book["book_Type"] == 2) book_Type = "up to 5 days"
+    else if (book["book_Type"] == 3) book_Type = "up to 2 days"
+    else book_Type = "ERORR"
     msg += `<tr>
         <td><button class="btn btn-danger" onclick="delBook(${book["id"]})">Delete Book</button></td>
-        <td>${book["name"]}</td>
+        <td>${book["book_Name"]}</td>
         <td>${book["author"]}</td>
-        <td>${book["yearPublished"]}</td>
-        <td>${bookType}</td></tr>
+        <td>${book["year_Published"]}</td>
+        <td>${book_Type}</td></tr>
         `}).join("")
-  document.getElementById("showBooks").innerHTML = msg;
+        console.log(res)
+  showBooks.innerHTML = msg;
 }
 getAllBooks()
 
@@ -42,7 +43,7 @@ const getAllCustomers = async () => {
   await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
   res.map((customer) => msg += `<tr>
   <td><button class="btn btn-danger" onclick="removeCust(${customer["id"]})">Delete Customer</button></td>
-  <td>${customer["name"]}</td>
+  <td>${customer["customerName"]}</td>
   <td>${customer["city"]}</td>
   <td>${customer["age"]}</td></tr>`).join("")
   document.getElementById("showCustomers").innerHTML = msg
@@ -63,40 +64,41 @@ const getAllLoans = async () => {
   let res = ""
   await fetch(MY_SERVER + "loans", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
   console.log(res)
-  res.map((loan,i) => {
+  res.map((loan, i) => {
     let d1 = new Date();
-    let d2 = new Date(loan["loanDate"])
+    let d2 = new Date(loan["loan_Date"])
     let status = "ON TIME"
-    if (loan["returnDate"] != "null"){
-      d1 = new Date(loan["returnDate"])
+    if (loan["return_Date"] != "None") {
+      d1 = new Date(loan["return_Date"])
     }
+
     var dif = Math.abs(d1 - d2);
-    d = Math.round(dif / (1000 * 3600 * 24)) - 1
+    var d = Math.round(dif / (1000 * 3600 * 24)) - 1
     console.log(d + " Days");
 
-    if (loan["bookType"] == 1 && d > 10) status = "LATE"
-    else if (loan["bookType"] == 1 && d == 10) status = "DUE TODAY"
-    else if (loan["bookType"] == 2 && d > 5) status = "LATE"
-    else if (loan["bookType"] == 2 && d == 5) status = "DUE TODAY"
-    else if (loan["bookType"] == 3 && d > 2) status = "LATE"
-    else if (loan["bookType"] == 3 && d == 2) status = "DUE TODAY"
+    if (loan["book_Type"] == 1 && d > 10) status = "LATE"
+    else if (loan["book_Type"] == 1 && d == 10) status = "DUE TODAY"
+    else if (loan["book_Type"] == 2 && d > 5) status = "LATE"
+    else if (loan["book_Type"] == 2 && d == 5) status = "DUE TODAY"
+    else if (loan["book_Type"] == 3 && d > 2) status = "LATE"
+    else if (loan["book_Type"] == 3 && d == 2) status = "DUE TODAY"
 
-    if (loan["returnDate"] == "null") {
+    if (loan["return_Date"] == "None") {
       msg += `<tr>
     <td><button class="btn btn-warning" onclick="returnBook(${loan["id"]})">Return Book</button></td>
-    <td>${loan["custId"]}</td>
-    <td>${loan["bookId"]}</td>
-    <td>${loan["loanDate"]}</td>
+    <td>${loan["customer_id"]}</td>
+    <td>${loan["book_id"]}</td>
+    <td>${loan["loan_Date"]}</td>
     <td><form class="formContainer"><input type="date" id="rDate${loan["id"]}" placeholder="Return Date" name="rDate" required ></form></td>
     <td>${status}</td></tr>`
     }
     else {
       msg += `<tr>
     <td><button class="btn btn-success">Returned</button></td>
-    <td>${loan["custId"]}</td>
-    <td>${loan["bookId"]}</td>
-    <td>${loan["loanDate"]}</td>
-    <td>${loan["returnDate"]}</td>
+    <td>${loan["customer_id"]}</td>
+    <td>${loan["book_id"]}</td>
+    <td>${loan["loan_Date"]}</td>
+    <td>${loan["return_Date"]}</td>
     <td>${status}</td></tr>`
     }
   }).join("")
@@ -107,14 +109,14 @@ getAllLoans();
 // ADD ITEMS
 // ADD BOOK
 const addBook = async () => {
-  if (document.getElementById("bName").value == "" || document.getElementById("author").value == "" || document.getElementById("yearPublished").value == "" || document.getElementById("bType").value == "") { invalidInput() }
-  else if (document.getElementById("bType").value > 3 || document.getElementById("bType").value < 1) { invalidTypeInput() }
+  if (book_Name.value == "" || author.value == "" || year_Published.value == "" || book_Type.value == "") { invalidInput() }
+  else if (book_Type.value > 3 || book_Type.value < 1) { invalidTypeInput() }
   else {
     const res = JSON.parse(`{
-"name":"${document.getElementById("bName").value}",
-"author":"${document.getElementById("author").value}",
-"yearPublished":"${document.getElementById("yearPublished").value}",
-"loanType":${document.getElementById("bType").value}
+"book_Name":"${book_Name.value}",
+"author":"${author.value}",
+"year_Published":"${year_Published.value}",
+"book_Type":${book_Type.value}
 }`);
     console.log(res)
     await fetch(MY_SERVER + "books", {
@@ -131,14 +133,13 @@ const addBook = async () => {
 
 // ADD CUSTOMER
 const addCust = async () => {
-  if (document.getElementById("cName").value == "" || document.getElementById("cCity").value == "" || document.getElementById("cAge").value == "") { invalidInput() }
+  if (cid.value == "" || city.value == "" || age.value == "") { invalidInput() }
   else {
     const res = JSON.parse(`{
-      "name":"${document.getElementById("cName").value}",
-      "city":"${document.getElementById("cCity").value}",
-      "age":${document.getElementById("cAge").value}
+      "customerName":"${cid.value}",
+      "city":"${city.value}",
+      "age":${age.value}
       }`);
-    console.log(res)
     await fetch(MY_SERVER + "customers", {
       method: "POST",
       headers: {
@@ -153,13 +154,13 @@ const addCust = async () => {
 
 // ADD LOAN
 const addLoan = async () => {
-  if (document.getElementById("cId").value == "" || document.getElementById("bId").value == "" || document.getElementById("lDate").value == "") { invalidInput() }
+  if (customer_id.value == "" || customer_id.value == "" || lDate.value == "") { invalidInput() }
   else {
     const res = JSON.parse(`{
-    "custId":${document.getElementById("cId").value},
-    "bookId":${document.getElementById("bId").value},
-    "loanDate":"${document.getElementById("lDate").value}"
-    }`);
+    "customer_id":${customer_id.value},
+    "book_id":${book_id.value},
+    "loan_Date":"${lDate.value}"
+    }`);console.log(lDate.value)
     console.log(res)
     await fetch(MY_SERVER + "loans", {
       method: "POST",
@@ -175,12 +176,12 @@ const addLoan = async () => {
 
 // CLOSE LOAN
 const returnBook = async (id) => {
-  const res = JSON.parse(`{"returnDate":"${document.getElementById(`rDate${id}`).value}"}`);
+  const res = JSON.parse(`{"return_Date":"${document.getElementById(`rDate${id}`).value}"}`);
   if (document.getElementById(`rDate${id}`).value == "") { invalidInput() }
   else {
     console.log(res)
     await fetch(MY_SERVER + `loans/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -219,7 +220,7 @@ const searchBook = () => {
       } else {
         tr[i].style.display = "none";
       }
-    }       
+    }
   }
 }
 
@@ -239,7 +240,7 @@ const searchCust = () => {
       } else {
         tr[i].style.display = "none";
       }
-    }       
+    }
   }
 }
 
