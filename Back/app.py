@@ -72,13 +72,13 @@ def crude_books(id=-1):
     if request.method == 'GET':
             res=[]
             for book in Books.query.all():
-                res.append({"book_Name":book.book_Name,"author":book.author,"id":book.id,"yearPublished":book.year_Published,"book_Type":book.book_Type})
+                res.append({"book_Name":book.book_Name,"author":book.author,"id":book.id,"year_Published":book.year_Published,"book_Type":book.book_Type})
             return  (json.dumps(res))
     if request.method == 'POST':
         request_data = request.get_json()
-        book_Name = request_data['name']
+        book_Name = request_data['book_Name']
         author = request_data['author']
-        year_Published= request_data["yearPublished"]
+        year_Published= request_data["year_Published"]
         book_Type= request_data["book_Type"]
         new_Book= Books(book_Name,author,year_Published,book_Type)
         db.session.add (new_Book)
@@ -155,20 +155,11 @@ def crude_loans(id=-1):
         db.session.commit()
         return "loan deleted"
     if request.method == 'PUT':
-        Update_it=Loans.query.get(id)
-        request_data = request.get_json()
-        Update_it.customer_id = request_data['customer_id']
-        Update_it.book_id = request_data['book_id']
-        # loan date update
-        loan_Date= request_data["loan_Date"]
-        loan_date_Obj = datetime.strptime(loan_Date,'%d/%m/%Y')
-        Update_it.loan_Date=loan_date_Obj
-        # return date update
-        return_Date= request_data["return_Date"]
-        return_date_Obj = datetime.strptime(return_Date,'%d/%m/%Y')
-        Update_it.return_Date= return_date_Obj
-        db.session.commit()
-        return "loan info updated"
+     updLoan = Loans.query.filter_by(id = id).first()
+     tmpLoan = request.get_json()
+     updLoan.return_Date = tmpLoan["return_Date"]
+     db.session.commit()
+     return "Book successfully returned"
 # -------------------------------------------------------------------------------
 # TEST
 @app.route('/')
